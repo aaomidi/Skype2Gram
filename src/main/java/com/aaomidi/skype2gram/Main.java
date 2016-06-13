@@ -1,5 +1,6 @@
 package com.aaomidi.skype2gram;
 
+import com.aaomidi.skype2gram.handlers.DataHandler;
 import com.aaomidi.skype2gram.handlers.TelegramHandler;
 import com.aaomidi.skype2gram.handlers.UserHandler;
 import com.aaomidi.skype2gram.utils.PhotoUtils;
@@ -14,6 +15,8 @@ import java.util.logging.Logger;
 public class Main {
 	private final Logger log = Logger.getLogger("Main");
 	@Getter
+	private DataHandler dataHandler;
+	@Getter
 	private TelegramHandler telegramHandler;
 	@Getter
 	private UserHandler userHandler;
@@ -25,13 +28,20 @@ public class Main {
 		String telegramAPIKey = args[0];
 		String clientID = args[1];
 
+		this.setupUserHandler();
+		this.setupData();
 		this.connectToTelegram(telegramAPIKey);
 		this.connectToImgur(clientID);
-		this.setupUserHandler();
 	}
 
 	public static void main(String... args) {
 		new Main(args);
+	}
+
+	private void setupData() {
+		log.log(Level.INFO, "Setting up data handler.");
+		dataHandler = new DataHandler(this);
+		log.log(Level.INFO, "\t... setup.");
 	}
 
 	private void connectToTelegram(String key) {
@@ -45,9 +55,10 @@ public class Main {
 		PhotoUtils.setClientID(clientID);
 		log.log(Level.INFO, "\t... Connected.");
 	}
-	public void setupUserHandler(){
+
+	public void setupUserHandler() {
 		log.log(Level.INFO, "Setting up UserHandler.");
-		userHandler=new UserHandler();
+		userHandler = new UserHandler();
 		log.log(Level.INFO, "\t... Done.");
 	}
 }

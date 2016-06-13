@@ -2,6 +2,7 @@ package com.aaomidi.skype2gram.handlers;
 
 import com.aaomidi.skype2gram.Main;
 import com.aaomidi.skype2gram.commands.LinkCommand;
+import com.aaomidi.skype2gram.commands.ListChatsCommand;
 import com.aaomidi.skype2gram.commands.LoginCommand;
 import com.aaomidi.skype2gram.model.TelegramCommand;
 import com.aaomidi.skype2gram.models.S2GUser;
@@ -46,6 +47,7 @@ public class TelegramHandler implements Listener {
 	public void registerCommands() {
 		new LoginCommand(instance, "login", "Logs you into skype if your account doesn't exist.", false);
 		new LinkCommand(instance, "link", "Links the chat you are in with a skype chat.", false);
+		new ListChatsCommand(instance, "listchats", "Lists all the chats currently loaded.", false);
 	}
 
 	@Override

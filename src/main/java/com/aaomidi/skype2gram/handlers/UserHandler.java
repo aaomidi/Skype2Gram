@@ -1,6 +1,7 @@
 package com.aaomidi.skype2gram.handlers;
 
 import com.aaomidi.skype2gram.models.S2GUser;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Map;
  * Created by amir on 2016-06-11.
  */
 public class UserHandler {
+	@Getter
 	private final Map<Long, S2GUser> users = new HashMap<>();
 
 	public void registerUser(S2GUser user) {
@@ -18,4 +20,5 @@ public class UserHandler {
 	public S2GUser getUser(long id) {
 		return users.get(id);
 	}
+
 }

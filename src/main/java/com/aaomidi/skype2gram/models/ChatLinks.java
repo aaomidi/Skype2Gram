@@ -1,24 +1,31 @@
 package com.aaomidi.skype2gram.models;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+
+import java.util.HashMap;
 
 /**
  * Created by amir on 2016-06-12.
  */
 @RequiredArgsConstructor
 public class ChatLinks {
+	//private final BidiMap<String, String> links = new DualHashBidiMap<>();
+
 	// Stored as TelegramID, SkypeID
-	private final BidiMap<String, String> links = new DualHashBidiMap<>();
+	private final HashMap<String, String> telegramToSkypeLink = new HashMap<>();
+	// Stored as SkypeID, TelegramID
+	private final HashMap<String, String> skypeToTelegramLink = new HashMap<>();
 
 	public void addLink(String telegramID, String skypeID) {
-		links.put(telegramID, skypeID);
+		telegramToSkypeLink.put(telegramID, skypeID);
+		skypeToTelegramLink.put(skypeID, telegramID);
 	}
-	public String getTelegram(String skypeID){
-		return links.getKey(skypeID);
+
+	public String getTelegram(String skypeID) {
+		return skypeToTelegramLink.get(skypeID);
 	}
-	public String getSkype(String telegramID){
-		return links.get(telegramID);
+
+	public String getSkype(String telegramID) {
+		return telegramToSkypeLink.get(telegramID);
 	}
 }

@@ -10,6 +10,7 @@ import com.samczsun.skype4j.events.Listener;
 import com.samczsun.skype4j.events.chat.message.MessageReceivedEvent;
 import com.samczsun.skype4j.exceptions.ConnectionException;
 import com.samczsun.skype4j.exceptions.InvalidCredentialsException;
+import lombok.Getter;
 
 import java.util.logging.Logger;
 
@@ -17,12 +18,13 @@ import java.util.logging.Logger;
  * Created by amir on 2016-06-11.
  */
 public class SkypeHandler implements Listener {
-	private final Logger log = Logger.getLogger("Main");
+	private transient final Logger log = Logger.getLogger("Main");
 
 	private final S2GUser user;
 	private final String username;
 	private final String password;
-	private final Skype skype;
+	@Getter
+	private transient final Skype skype;
 
 	public SkypeHandler(String username, String password, S2GUser s2GUser) {
 		this.username = username;

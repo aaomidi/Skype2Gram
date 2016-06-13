@@ -23,16 +23,15 @@ import java.util.logging.Logger;
 
 public class S2GUser {
 	private final transient Logger log = Logger.getLogger("Main");
-	private final Main instance;
+	private final transient Main instance;
 	@Getter
 	private final long userID;
 	private final LoginInfo skypeLoginInfo;
 	@Getter
-	private final transient SkypeHandler skypeHandler;
-	@Getter
 	private final ChatLinks chatLinks;
 	@Getter
 	private final MessageLinks messageLinks;
+	private transient SkypeHandler skypeHandler;
 
 	public S2GUser(Main instance, long userID, LoginInfo skypeLoginInfo) {
 		this.instance = instance;
@@ -43,6 +42,15 @@ public class S2GUser {
 		messageLinks = new MessageLinks();
 
 		skypeHandler = new SkypeHandler(skypeLoginInfo, this);
+	}
+
+	public SkypeHandler getSkypeHandler() {
+		if (skypeHandler != null) {
+			return skypeHandler;
+		}
+		skypeHandler = new SkypeHandler(skypeLoginInfo, this);
+		skypeHandler.login();
+		return skypeHandler;
 	}
 
 	public void skypeMessageReceived(MessageReceivedEvent event) {
@@ -83,7 +91,7 @@ public class S2GUser {
 			chat.sendMessage("Could not find a chat with that message. Sorry");
 			return;
 		}
-		com.samczsun.skype4j.chat.Chat c = skypeHandler.getChatFromIdentity(skypeChatID);
+		com.samczsun.skype4j.chat.Chat c = getSkypeHandler().getChatFromIdentity(skypeChatID);
 
 		sendMessageToSkype(event, c);
 
@@ -96,8 +104,8 @@ public class S2GUser {
 		if (skypeChatID == null) {
 			return;
 		}
-
-		com.samczsun.skype4j.chat.Chat c = skypeHandler.getChatFromIdentity(skypeChatID);
+		System.out.println(skypeChatID);
+		com.samczsun.skype4j.chat.Chat c = getSkypeHandler().getChatFromIdentity(skypeChatID);
 		sendMessageToSkype(event, c);
 	}
 
@@ -137,6 +145,7 @@ public class S2GUser {
 			}
 			case TEXT: {
 				TextContent content = (TextContent) event.getContent();
+				if (content.getContent().startsWith("/")) break;
 				try {
 					c.sendMessage(content.getContent());
 				} catch (Exception e) {
