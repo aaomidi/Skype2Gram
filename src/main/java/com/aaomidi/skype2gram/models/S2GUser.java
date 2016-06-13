@@ -10,6 +10,7 @@ import com.samczsun.skype4j.chat.messages.ReceivedMessage;
 import com.samczsun.skype4j.events.chat.message.MessageReceivedEvent;
 import com.samczsun.skype4j.user.User;
 import lombok.Getter;
+import lombok.Setter;
 import pro.zackpollard.telegrambot.api.TelegramBot;
 import pro.zackpollard.telegrambot.api.chat.Chat;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
@@ -23,7 +24,6 @@ import java.util.logging.Logger;
 
 public class S2GUser {
 	private final transient Logger log = Logger.getLogger("Main");
-	private final transient Main instance;
 	@Getter
 	private final long userID;
 	private final LoginInfo skypeLoginInfo;
@@ -31,6 +31,8 @@ public class S2GUser {
 	private final ChatLinks chatLinks;
 	@Getter
 	private final MessageLinks messageLinks;
+	@Setter
+	private transient Main instance;
 	private transient SkypeHandler skypeHandler;
 
 	public S2GUser(Main instance, long userID, LoginInfo skypeLoginInfo) {
@@ -80,6 +82,11 @@ public class S2GUser {
 	private void handlePMs(pro.zackpollard.telegrambot.api.event.chat.message.MessageReceivedEvent event) {
 		Chat chat = event.getChat();
 		Message message = event.getMessage();
+		if (getChatLinks().getSkype(chat.getId()) != null) { // If a manual link has been made
+			handleGroups(event);
+			return;
+		}
+
 		if (message.getRepliedTo() == null) {
 			chat.sendMessage("You need to reply to a message.");
 			return;
@@ -159,15 +166,23 @@ public class S2GUser {
 	}
 
 	private void sendToTelegram(User user, String text, com.samczsun.skype4j.chat.Chat chat) {
+		boolean handleAsGroup = false;
 		if (chat instanceof IndividualChat) {
 			Chat c = getChat();
-			try {
-				Message m = c.sendMessage(String.format("%s (%s): %s", user.getDisplayName(), user.getUsername(), text));
-				messageLinks.addLink(String.valueOf(m.getMessageId()), chat.getIdentity());
-			} catch (Exception e) {
-				c.sendMessage("Something wrong happened when getting a message.");
+			String chatIdentity = chat.getIdentity();
+			String telegramChatID = chatLinks.getTelegram(chatIdentity);
+			if (telegramChatID != null) {
+				handleAsGroup = true; // If manual link is made
+			} else {
+				try {
+					Message m = c.sendMessage(String.format("%s (%s): %s", user.getDisplayName(), user.getUsername(), text));
+					messageLinks.addLink(String.valueOf(m.getMessageId()), chat.getIdentity());
+				} catch (Exception e) {
+					c.sendMessage("Something wrong happened when getting a message.");
+				}
 			}
-		} else if (chat instanceof GroupChat) {
+		}
+		if (chat instanceof GroupChat || handleAsGroup) {
 			String chatIdentity = chat.getIdentity();
 			String telegramChatID = chatLinks.getTelegram(chatIdentity);
 			Chat teleChat = getChat(telegramChatID);

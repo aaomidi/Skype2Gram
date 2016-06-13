@@ -55,6 +55,7 @@ public class DataHandler extends TimerTask {
 					System.out.println("Something wrong happened when reading " + file.getName());
 					continue;
 				}
+				user.setInstance(instance);
 				instance.getUserHandler().registerUser(user);
 			}
 		} catch (Exception ex) {
