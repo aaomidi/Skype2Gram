@@ -1,9 +1,7 @@
 package com.aaomidi.skype2gram.handlers;
 
 import com.aaomidi.skype2gram.Main;
-import com.aaomidi.skype2gram.commands.LinkCommand;
-import com.aaomidi.skype2gram.commands.ListChatsCommand;
-import com.aaomidi.skype2gram.commands.LoginCommand;
+import com.aaomidi.skype2gram.commands.*;
 import com.aaomidi.skype2gram.model.TelegramCommand;
 import com.aaomidi.skype2gram.models.S2GUser;
 import lombok.Getter;
@@ -45,8 +43,11 @@ public class TelegramHandler implements Listener {
 	}
 
 	public void registerCommands() {
+		new GroupChatsCommand(instance, "groupchats", "Enable or disable group chats in PM.", false);
+		new HelpCommand(instance, "help", "Shows some help text.", false);
 		new LoginCommand(instance, "login", "Logs you into skype if your account doesn't exist.", false);
 		new LinkCommand(instance, "link", "Links the chat you are in with a skype chat.", false);
+		new LoadChatsCommand(instance, "loadchats", "Loads more chats.", false);
 		new ListChatsCommand(instance, "listchats", "Lists all the chats currently loaded.", false);
 	}
 

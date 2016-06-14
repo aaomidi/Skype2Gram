@@ -43,7 +43,9 @@ public class SkypeHandler implements Listener {
 			skype.login();
 			skype.subscribe();
 			skype.getEventDispatcher().registerListener(this);
-			skype.loadMoreChats(10);
+			for (String identity : user.getCachedIdentities()) {
+				skype.getOrLoadChat(identity);
+			}
 		} catch (InvalidCredentialsException ex) {
 			return SkypeStatus.INVALID_CREDENTIALS;
 		} catch (ConnectionException ex) {

@@ -11,6 +11,7 @@ import com.samczsun.skype4j.events.chat.message.MessageReceivedEvent;
 import com.samczsun.skype4j.user.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.RandomStringUtils;
 import pro.zackpollard.telegrambot.api.TelegramBot;
 import pro.zackpollard.telegrambot.api.chat.Chat;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
@@ -19,7 +20,8 @@ import pro.zackpollard.telegrambot.api.chat.message.content.StickerContent;
 import pro.zackpollard.telegrambot.api.chat.message.content.TextContent;
 
 import java.io.File;
-import java.util.logging.Level;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class S2GUser {
@@ -31,9 +33,15 @@ public class S2GUser {
 	private final ChatLinks chatLinks;
 	@Getter
 	private final MessageLinks messageLinks;
+	@Getter
+	@Setter
+	protected transient boolean changesMade;
+	private List<String> cachedIdentities;
 	@Setter
 	private transient Main instance;
 	private transient SkypeHandler skypeHandler;
+	@Getter
+	private boolean groupChats;
 
 	public S2GUser(Main instance, long userID, LoginInfo skypeLoginInfo) {
 		this.instance = instance;
@@ -46,6 +54,22 @@ public class S2GUser {
 		skypeHandler = new SkypeHandler(skypeLoginInfo, this);
 	}
 
+	public List<String> getCachedIdentities() {
+		if (cachedIdentities != null) {
+			return cachedIdentities;
+		}
+		cachedIdentities = new LinkedList<>();
+		return cachedIdentities;
+	}
+
+	public void setGroupChats(boolean groupChats) {
+		this.groupChats = groupChats;
+	}
+
+	public void addSkypeIdentity(String identity) {
+		cachedIdentities.add(identity);
+	}
+
 	public SkypeHandler getSkypeHandler() {
 		if (skypeHandler != null) {
 			return skypeHandler;
@@ -56,6 +80,8 @@ public class S2GUser {
 	}
 
 	public void skypeMessageReceived(MessageReceivedEvent event) {
+		getCachedIdentities().add(event.getChat().getIdentity());
+
 		ReceivedMessage message = event.getMessage();
 		String text = message.getContent().asPlaintext();
 		User sender = message.getSender();
@@ -141,9 +167,17 @@ public class S2GUser {
 			}
 			case STICKER: {
 				StickerContent content = (StickerContent) event.getContent();
-
+				File f = PhotoUtils.downloadFile(content.getContent(), getBot());
+				File newFile = new File(PhotoUtils.getImageDir(), RandomStringUtils.randomAlphanumeric(5) + ".webp");
+				f.renameTo(newFile);
+				String link = "";
 				try {
-					c.sendMessage(String.format("Sent a %s sticker: %s", content.getContent().getEmoji(), content.getContent().getFileDownloadLink(getBot())));
+					//link = PhotoUtils.uploadToImgur(newFile);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				try {
+					c.sendMessage(String.format("Sent a %s sticker.", content.getContent().getEmoji()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					chat.sendMessage("Error happened: " + e.getMessage());
@@ -167,7 +201,7 @@ public class S2GUser {
 
 	private void sendToTelegram(User user, String text, com.samczsun.skype4j.chat.Chat chat) {
 		boolean handleAsGroup = false;
-		if (chat instanceof IndividualChat) {
+		if (chat instanceof IndividualChat || isGroupChats()) { // If group chats are handled by PM.
 			Chat c = getChat();
 			String chatIdentity = chat.getIdentity();
 			String telegramChatID = chatLinks.getTelegram(chatIdentity);
@@ -175,7 +209,11 @@ public class S2GUser {
 				handleAsGroup = true; // If manual link is made
 			} else {
 				try {
-					Message m = c.sendMessage(String.format("%s (%s): %s", user.getDisplayName(), user.getUsername(), text));
+					String msg = String.format("%s (%s): %s", user.getDisplayName(), user.getUsername(), text);
+					if (chat instanceof GroupChat) {
+						msg = String.format("%s\n\t%s (%s): %s", chat.getIdentity(), user.getDisplayName(), user.getUsername(), text);
+					}
+					Message m = c.sendMessage(msg);
 					messageLinks.addLink(String.valueOf(m.getMessageId()), chat.getIdentity());
 				} catch (Exception e) {
 					c.sendMessage("Something wrong happened when getting a message.");
@@ -188,7 +226,6 @@ public class S2GUser {
 			Chat teleChat = getChat(telegramChatID);
 
 			if (teleChat == null) {
-				log.log(Level.SEVERE, "Chat was null.");
 				return;
 			}
 

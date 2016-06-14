@@ -19,6 +19,7 @@ public class PhotoUtils {
 	private static final String BASE_URL = "https://api.imgur.com/3/image.json";
 	@Setter
 	private static String clientID;
+	private static File imageDir;
 
 	public static PhotoSize getLargestPhoto(PhotoContent x) {
 		PhotoSize largest = null;
@@ -34,17 +35,24 @@ public class PhotoUtils {
 		return largest;
 	}
 
+	public static File getImageDir() {
+		if (imageDir != null) {
+			return imageDir;
+		}
+		String path = System.getProperty("java.io.tempdir");
+		imageDir = new File(path, "images/");
+		return imageDir;
+	}
+
 	public static int getDimensions(PhotoSize p) {
 		return p.getHeight() * p.getWidth();
 	}
 
 	public static File downloadFile(pro.zackpollard.telegrambot.api.chat.message.content.type.File f, TelegramBot bot) {
-		String path = System.getProperty("java.io.tempdir");
-		File dir = new File(path, "images/");
-		dir.mkdir();
+		getImageDir().mkdir();
 
 		String randomString = UUID.randomUUID().toString();
-		File file = new File(dir, randomString + ".png");
+		File file = new File(getImageDir(), randomString + ".png");
 
 		f.downloadFile(bot, file);
 
@@ -57,7 +65,6 @@ public class PhotoUtils {
 				.header("Authorization", "Client-ID " + clientID)
 				.field("image", file)
 				.asJson();
-
 		return (String) response.getBody().getObject().getJSONObject("data").get("link");
 	}
 

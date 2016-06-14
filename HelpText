@@ -1,0 +1,8 @@
+Hey there!
+To use the bot you do the following: /login [username] [password]
+All private messages will be received in a private chat with the bot.
+Group chats will be ignored by default (unless you enable them with /groupchats enable).
+
+If you make a group with yourself and the bot, you can /link [chatID] so that the messages for that specific conversation gets sent to that specific group.
+
+To get the "ChatID" of the specific chat you're after, skype is pretty stupid so I can't show you the chat ID and the chat name at the current moment. So you're just going to have to either figure it out from /listchats or turn on group chats and see what messages are sent from what group.
