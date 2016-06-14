@@ -58,7 +58,6 @@ public class SkypeHandler implements Listener {
 
 	@EventHandler
 	public void onMessage(MessageReceivedEvent event) {
-		System.out.println(event.getMessage().getChat().getIdentity());
 		this.user.skypeMessageReceived(event);
 	}
 

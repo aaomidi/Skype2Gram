@@ -2,9 +2,9 @@ package com.aaomidi.skype2gram.commands;
 
 import com.aaomidi.skype2gram.Main;
 import com.aaomidi.skype2gram.handlers.SkypeHandler;
-import com.aaomidi.skype2gram.model.TelegramCommand;
 import com.aaomidi.skype2gram.models.LoginInfo;
 import com.aaomidi.skype2gram.models.S2GUser;
+import com.aaomidi.skype2gram.models.TelegramCommand;
 import com.aaomidi.skype2gram.utils.Lang;
 import pro.zackpollard.telegrambot.api.event.chat.message.CommandMessageReceivedEvent;
 import pro.zackpollard.telegrambot.api.user.User;

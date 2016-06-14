@@ -1,4 +1,4 @@
-package com.aaomidi.skype2gram.model;
+package com.aaomidi.skype2gram.models;
 
 import com.aaomidi.skype2gram.Main;
 import com.aaomidi.skype2gram.handlers.TelegramHandler;

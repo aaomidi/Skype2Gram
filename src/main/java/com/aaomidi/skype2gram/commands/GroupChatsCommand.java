@@ -1,8 +1,8 @@
 package com.aaomidi.skype2gram.commands;
 
 import com.aaomidi.skype2gram.Main;
-import com.aaomidi.skype2gram.model.TelegramCommand;
 import com.aaomidi.skype2gram.models.S2GUser;
+import com.aaomidi.skype2gram.models.TelegramCommand;
 import pro.zackpollard.telegrambot.api.chat.Chat;
 import pro.zackpollard.telegrambot.api.event.chat.message.CommandMessageReceivedEvent;
 
